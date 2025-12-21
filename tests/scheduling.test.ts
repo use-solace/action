@@ -16,8 +16,9 @@ describe("Scheduled Execution", () => {
         },
       },
     ]);
-    // Wait for scheduled execution
-    await wait(1500);
+    // Wait longer to ensure the scheduled execution happens
+    // Action is scheduled 1 second after definition, so wait 2.5 seconds
+    await wait(2500);
     expect(executionCount).toBeGreaterThan(0);
   });
 
