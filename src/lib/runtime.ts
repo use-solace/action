@@ -52,6 +52,16 @@ async function runAction(name: string, entry: InternalActionEntry) {
       await entry.def.onRun(ctx);
       entry.hasRunOnRun = true;
     }
+    // onComplete executes on every successful completion
+    if (entry.def.onComplete) {
+      try {
+        await entry.def.onComplete(ctx);
+      } catch (completeHandlerError) {
+        ctx.log.error(
+          `onComplete handler for action ${name} failed: ${String(completeHandlerError)}`
+        );
+      }
+    }
   } catch (e) {
     const error = e instanceof Error ? e : new Error(String(e));
     ctx.log.error(`action ${name} failed: ${error.message}`);
