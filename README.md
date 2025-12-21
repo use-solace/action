@@ -98,6 +98,7 @@ interface ActionDefinition {
   description: string; // Human-readable description
   execute: (ctx: ActionContext) => Promise<void> | void; // Main execution function
   onRun?: (ctx: ActionContext) => Promise<void> | void; // Optional hook that runs once on first execution
+  onError?: (ctx: ActionContext, error: Error) => Promise<void> | void; // Optional hook that runs on execution failure
   interval?: ActionInterval; // Optional scheduling interval
 }
 ```
@@ -111,6 +112,8 @@ interface ActionDefinition {
 - **`execute`** (required): The main function that performs the action's work. Receives an `ActionContext` object with utilities and can be async or sync.
 
 - **`onRun`** (optional): A callback function that runs after `execute` completes successfully on the **first execution only**. Useful for one-time setup, initialization, or first-run notifications.
+
+- **`onError`** (optional): A callback function that runs when `execute` throws an error. Receives the context and the error object. Useful for error handling, notifications, cleanup, or recovery logic.
 
 - **`interval`** (optional): Defines when the action should run automatically. If omitted, the action will only run when manually triggered.
 
@@ -362,6 +365,31 @@ const actions = define([
 ```
 
 Errors are logged with the format: `[action] action <name> failed: <error message>`
+
+### Action with Error Handler
+
+Use `onError` to handle failures with custom logic:
+
+```typescript
+const actions = define([
+  {
+    name: "critical-task",
+    description: "A task that needs error handling",
+    interval: { every: 30, unit: "minutes" },
+    execute: async (ctx) => {
+      await performCriticalTask();
+    },
+    onError: async (ctx, error) => {
+      // Custom error handling
+      ctx.log.error(`Critical task failed: ${error.message}`);
+      await sendAlert(`Action failed: ${error.message}`);
+      await attemptRecovery();
+    },
+  },
+]);
+```
+
+The `onError` handler receives both the context and the error object, allowing you to implement custom error handling, notifications, or recovery logic. If `onError` itself throws an error, it will be caught and logged separately.
 
 ## Advanced Usage
 
