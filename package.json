@@ -1,0 +1,26 @@
+{
+  "name": "@use-solace/action",
+  "version": "0.1.0",
+  "description": "TypeScript library for defining and running typesafe cron jobs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "action",
+    "scheduler",
+    "automation"
+  ],
+  "author": "Solace <https://github.com/use-solace>",
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
