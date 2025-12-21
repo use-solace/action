@@ -6,6 +6,7 @@ type InternalActionEntry = {
   def: ActionDefinition;
   nextAt: number;
   inFlight: boolean;
+  hasRunOnRun: boolean;
 };
 
 const actionsMap = new Map<string, InternalActionEntry>();
@@ -46,7 +47,11 @@ async function runAction(name: string, entry: InternalActionEntry) {
   const ctx = createContext();
   try {
     await entry.def.execute(ctx);
-    if (entry.def.onRun) await entry.def.onRun(ctx);
+    // onRun only executes once on the first execution
+    if (entry.def.onRun && !entry.hasRunOnRun) {
+      await entry.def.onRun(ctx);
+      entry.hasRunOnRun = true;
+    }
   } catch (e) {
     ctx.log.error(`action ${name} failed: ${String(e)}`);
   } finally {
@@ -80,6 +85,7 @@ export function define(defs: ActionDefinition[]) {
       def: d,
       nextAt: Date.now() + intervalMs(d),
       inFlight: false,
+      hasRunOnRun: false,
     };
     actionsMap.set(d.name, entry);
   }
