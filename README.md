@@ -97,7 +97,7 @@ interface ActionDefinition {
   name: string; // Unique identifier for the action
   description: string; // Human-readable description
   execute: (ctx: ActionContext) => Promise<void> | void; // Main execution function
-  onRun?: (ctx: ActionContext) => Promise<void> | void; // Optional hook after execution
+  onRun?: (ctx: ActionContext) => Promise<void> | void; // Optional hook that runs once on first execution
   interval?: ActionInterval; // Optional scheduling interval
 }
 ```
@@ -110,7 +110,7 @@ interface ActionDefinition {
 
 - **`execute`** (required): The main function that performs the action's work. Receives an `ActionContext` object with utilities and can be async or sync.
 
-- **`onRun`** (optional): A callback function that runs after `execute` completes successfully. Useful for cleanup, notifications, or post-execution logic.
+- **`onRun`** (optional): A callback function that runs after `execute` completes successfully on the **first execution only**. Useful for one-time setup, initialization, or first-run notifications.
 
 - **`interval`** (optional): Defines when the action should run automatically. If omitted, the action will only run when manually triggered.
 
@@ -256,9 +256,9 @@ const actions = define([
       ctx.log.info("Backup completed");
     },
     onRun: async (ctx) => {
-      // This runs after execute completes successfully
-      ctx.log.info("Sending backup notification...");
-      await sendNotification("Backup completed successfully");
+      // This runs only once on the first execution
+      ctx.log.info("Sending initial backup notification...");
+      await sendNotification("Backup system initialized");
     },
   },
 ]);
