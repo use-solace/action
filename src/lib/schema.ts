@@ -4,6 +4,7 @@ export const ActionDefinitionSchema = z.object({
   description: z.string(),
   execute: z.function().args(z.any()).returns(z.any()),
   onRun: z.function().args(z.any()).returns(z.any()).optional(),
+  onError: z.function().args(z.any()).returns(z.any()).optional(),
   interval: z
     .object({
       every: z.number().int().positive(),

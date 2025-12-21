@@ -53,7 +53,18 @@ async function runAction(name: string, entry: InternalActionEntry) {
       entry.hasRunOnRun = true;
     }
   } catch (e) {
-    ctx.log.error(`action ${name} failed: ${String(e)}`);
+    const error = e instanceof Error ? e : new Error(String(e));
+    ctx.log.error(`action ${name} failed: ${error.message}`);
+    // onError executes when action fails
+    if (entry.def.onError) {
+      try {
+        await entry.def.onError(ctx, error);
+      } catch (errorHandlerError) {
+        ctx.log.error(
+          `onError handler for action ${name} failed: ${String(errorHandlerError)}`
+        );
+      }
+    }
   } finally {
     entry.inFlight = false;
     entry.nextAt = Date.now() + intervalMs(entry.def);

@@ -8,6 +8,7 @@ export interface ActionDefinition {
   description: string;
   execute: (ctx: ActionContext) => Promise<void> | void;
   onRun?: (ctx: ActionContext) => Promise<void> | void;
+  onError?: (ctx: ActionContext, error: Error) => Promise<void> | void;
   interval?: ActionInterval;
 }
 export interface ActionContext {
