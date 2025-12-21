@@ -98,6 +98,7 @@ interface ActionDefinition {
   description: string; // Human-readable description
   execute: (ctx: ActionContext) => Promise<void> | void; // Main execution function
   onRun?: (ctx: ActionContext) => Promise<void> | void; // Optional hook that runs once on first execution
+  onComplete?: (ctx: ActionContext) => Promise<void> | void; // Optional hook that runs on every successful completion
   onError?: (ctx: ActionContext, error: Error) => Promise<void> | void; // Optional hook that runs on execution failure
   interval?: ActionInterval; // Optional scheduling interval
 }
@@ -112,6 +113,8 @@ interface ActionDefinition {
 - **`execute`** (required): The main function that performs the action's work. Receives an `ActionContext` object with utilities and can be async or sync.
 
 - **`onRun`** (optional): A callback function that runs after `execute` completes successfully on the **first execution only**. Useful for one-time setup, initialization, or first-run notifications.
+
+- **`onComplete`** (optional): A callback function that runs after `execute` completes successfully on **every execution**. Useful for notifications, logging, or cleanup that should happen after each successful run.
 
 - **`onError`** (optional): A callback function that runs when `execute` throws an error. Receives the context and the error object. Useful for error handling, notifications, cleanup, or recovery logic.
 
@@ -244,7 +247,7 @@ const actions = define([
 ]);
 ```
 
-### Action with Post-Execution Hook
+### Action with Post-Execution Hooks
 
 ```typescript
 const actions = define([
@@ -262,6 +265,11 @@ const actions = define([
       // This runs only once on the first execution
       ctx.log.info("Sending initial backup notification...");
       await sendNotification("Backup system initialized");
+    },
+    onComplete: async (ctx) => {
+      // This runs after every successful execution
+      ctx.log.info("Sending completion notification...");
+      await sendNotification("Backup completed successfully");
     },
   },
 ]);
@@ -390,6 +398,31 @@ const actions = define([
 ```
 
 The `onError` handler receives both the context and the error object, allowing you to implement custom error handling, notifications, or recovery logic. If `onError` itself throws an error, it will be caught and logged separately.
+
+### Action with Completion Handler
+
+Use `onComplete` to run logic after every successful execution:
+
+```typescript
+const actions = define([
+  {
+    name: "sync-data",
+    description: "Sync data every 15 minutes",
+    interval: { every: 15, unit: "minutes" },
+    execute: async (ctx) => {
+      await syncData();
+    },
+    onComplete: async (ctx) => {
+      // This runs after every successful execution
+      ctx.log.info("Data sync completed successfully");
+      await updateLastSyncTime();
+      await notifyTeam("Data sync completed");
+    },
+  },
+]);
+```
+
+The `onComplete` handler runs after every successful execution (unlike `onRun` which only runs once). This is useful for notifications, logging, or cleanup that should happen after each successful run. If `onComplete` itself throws an error, it will be caught and logged separately.
 
 ## Advanced Usage
 
