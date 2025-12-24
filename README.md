@@ -533,4 +533,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-For issues, questions, or contributions, please visit: https://github.com/use-solace
+For issues, questions, or contributions, please visit: [github.com/use-solace](https://github.com/use-solace)
